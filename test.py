@@ -16,15 +16,16 @@ def filter_txt(line):
         return
     position = [i for i,x in enumerate(line) if x == "&"] 
     for i in position:
-        if line[i:i + 2] in bad_chars and line[i + 2].isalnum():         
-            print(line[i] + line[i + 1] + line[i + 2])
-            print(line)
-            print("----")
+        if line[i:i + 2] in bad_chars and line[i + 2].isalnum():    
+            print(line)     
+            print(extract(line))
+            print("---------------------")
+            print("---------------------")
               
 def extract(line):
     elts = []
+    next_and = 0
     while line != "" or line != '':
-        print(line)
         phrase = line[line.index("&")+2:]
         try:
             next_and = phrase.index("&")
@@ -32,10 +33,13 @@ def extract(line):
         except:
             phrase = line[line.index("&")+2:]
             line = "  "
-        if phrase == "" or phrase == '':
-            pass
-        else:
-            elts.append(phrase)
+        for i in phrase:
+            if phrase[0] == " " or phrase[0].isalnum():
+                if phrase == "" or phrase == '':
+                    pass
+                else:
+                    elts.append(phrase)
+        
         line = line[next_and + 2:]
     return elts
         
@@ -62,6 +66,7 @@ reader('./archivos')
 get_string(files)
 
 
+
 class phr:
     
     def __init__ (self, content, line_num, start_index, file_path):
@@ -69,8 +74,8 @@ class phr:
 
         self.divided = []
         self.translated = ""
-        self.line_num = line_num
-        self.start_index = start_index
+        self.line_num = line_num    
+        self.start_index = start_index                                                                                      
         self.file_path = file_path
 
 #get_string("./archivos/Quests/quests/collect66rawrabbit.yml")
