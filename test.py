@@ -5,8 +5,8 @@ from Translate import trans
 files = []
 good_chars = ["&0","&1","&2","&3","&4","&5","&6","&7","&8","&9","&a","&b","&c","&e","&l","&m","&n","&o",'\n']
 bad_chars = ["&","%","/","<",">","[","]","{","}"]
-strange_char = [')"\n', 'Â» ', "'\n", '"\n', '| ']
-trailing_chars = ["\n", " ", '"', "'", "#"]
+strange_char = [')"\n', 'Â» ', "'\n", '"\n', '| ', ]
+trailing_chars = ["\n", " ", '"', "'", "#", '|']
 
 
 def extract(line):
@@ -25,11 +25,13 @@ def extract(line):
             if a in good_chars and indexes[-1] != indexes[i]:
                 if (len(line[indexes[i] + 2:indexes[i+1]])) > 1 and (line[indexes[i] + 2:indexes[i+1]] != " "):
                     array_to_trans.append([[indexes[i]+2, indexes[i+1]],line[indexes[i] + 2:indexes[i+1]]])
-            if indexes[-1] == indexes[i]:
+            if i == len(indexes)-1:
                 if (len(line[indexes[i] + 2:])) > 1 and (line[indexes[i] + 2:] != " "):
-                    array_to_trans.append([[indexes[i]+2, indexes[i]],line[indexes[i] + 2:]])
+                    array_to_trans.append([[indexes[i]+2, indexes[i]+len(line[indexes[i] + 2:])],line[indexes[i] + 2:]])
+                    #print([[indexes[i]+2, indexes[i]+len(line[indexes[i] + 2:])],line[indexes[i] + 2:]])
     return array_to_trans
 
+# queda por filtrar cuando sale CharacterEncoding=utf8
 def filter(extracted):
     filtered = []
     for word in extracted:
@@ -39,7 +41,6 @@ def filter(extracted):
                     if elt[1] in strange_char:
                         pass
                     elif elt[1][-1] in trailing_chars:
-                        #print(f"{elt} -> {elt[1][:-1]}")
                         if elt[1][-2] in trailing_chars:
                             filtered.append([[elt[0][0], elt[0][1]-1],elt[1][:-2]])
                         else:
@@ -89,7 +90,6 @@ filtrado = filter(resultado)
 for elt in filtrado:
     print(elt)
 
-# hay algunas palabras en las que los indices estan de al reves o algo
 # lo siguiente es implementar la traducción
 # podemos hacer en dos pasadas al archivo o en cuanto encotremos las palabras (esta es la mejor pero va a ser un lio)
 
