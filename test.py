@@ -31,25 +31,29 @@ def extract(line):
                     #print([[indexes[i]+2, indexes[i]+len(line[indexes[i] + 2:])],line[indexes[i] + 2:]])
     return array_to_trans
 
-# queda por filtrar cuando sale CharacterEncoding=utf8
+# queda por filtrar cuando sale CharacterEncoding=utf8, #ID, IP, UUID
 def filter(extracted):
     filtered = []
     for word in extracted:
-        if word:
+        if len(word) > 1:
+            line_num = 0
             for elt in word:
                 try:
-                    if elt[1] in strange_char:
+                    if type(elt) == type(2):
+                        line_num = elt
+                    elif elt[1] in strange_char:
                         pass
                     elif elt[1][-1] in trailing_chars:
                         if elt[1][-2] in trailing_chars:
-                            filtered.append([[elt[0][0], elt[0][1]-1],elt[1][:-2]])
+                            filtered.append([line_num, [elt[0][0], elt[0][1]-1],elt[1][:-2]])
                         else:
-                            filtered.append([[elt[0][0], elt[0][1] - 2], elt[1][:-1]])
+                            filtered.append([line_num, [elt[0][0], elt[0][1] - 2], elt[1][:-1]])
                     else:
-                        filtered.append(elt)
+                        filtered.append([line_num, elt[0], elt[1]])
                 except Exception as e:
-                    print(elt)
+                    raise e
     return filtered
+
 
 
 def insert(original_phrase, indexes):
@@ -64,14 +68,18 @@ def insert(original_phrase, indexes):
     return translated_phrase
 
 def get_string(files):
-    strings = []
+    output = []
     for i in files:
+        strings = [i]
         text = open(i, "r")
         lines = text.readlines()
         text.close()
-        for line in lines:
-            strings.append(extract(line))
-    return strings
+        for n,line in enumerate(lines):
+            index_extract = extract(line)
+            index_extract.insert(0,n)
+            strings.append(index_extract)
+        output.append(strings)
+    return output
 
 def reader(dir):
     try:
@@ -86,22 +94,20 @@ def reader(dir):
 
 reader('./archivos')
 resultado = get_string(files)
-filtrado = filter(resultado)
-for elt in filtrado:
-    print(elt)
+final = []
+for file_and_string in resultado:
+    name = file_and_string[0]
+    file_and_string = filter(file_and_string[1:])
+    file_and_string.insert(0,name)
+    final.append(file_and_string)
 
+for elt in final:
+    for x in elt:
+        print(x)
+
+# quedan algunas palabrs ezoecifica que no se si filtrar, lo pone encima de la funcio de filtrar
 # lo siguiente es implementar la traducción
-# podemos hacer en dos pasadas al archivo o en cuanto encotremos las palabras (esta es la mejor pero va a ser un lio)
-
-class phr:
-    
-    def __init__ (self, content, line_num, start_index, file_path):
-        self.raw = content
-        self.divided = []
-        self.translated = ""
-        self.line_num = line_num    
-        self.start_index = start_index                                                                                      
-        self.file_path = file_path
+# hay que reworkear el insert por que está hecho para funcionar differente
 
 #get_string("./archivos/Quests/quests/collect66rawrabbit.yml")
 #print(insert("hello world", [[0,4],[6,11]]))
